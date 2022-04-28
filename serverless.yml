@@ -22,9 +22,9 @@ custom:
     migration:
       dir: offline/migrations
   serverless-offline:
-        httpPort: 4600
-        websocketPort: 4601
-        lambdaPort: 4602
+        httpPort: 4000
+        websocketPort: 4001
+        lambdaPort: 4002
 
 provider:
   name: aws

@@ -73,7 +73,7 @@ const TutorialsList = (props: { history: string[] }) => {
       .then((response) => {
         props.history.push("/tutorials");
 
-        let newTutorials = [...tutorials];
+        let newTutorials = [...tutorialsRef.current];
         newTutorials.splice(rowIndex, 1);
 
         setTutorials(newTutorials);
