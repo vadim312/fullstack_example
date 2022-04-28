@@ -2,7 +2,7 @@ import { Handler, APIGatewayEvent, Context } from "aws-lambda";
 import { dynamoDb } from "../util/dynamoHelper";
 import { errorResponse, successResponse } from "../util/responseHelper";
 
-export const get: Handler = async (
+export const remove: Handler = async (
   event: APIGatewayEvent,
   context: Context
 ) => {
@@ -11,12 +11,13 @@ export const get: Handler = async (
     Key: {
       id: event.pathParameters!.id,
     },
+    ReturnValues: "ALL_OLD",
   };
 
-  // fetch todo from the database
+  // remove todo from the database
   try {
-    const res = await dynamoDb.get(params).promise();
-    return successResponse(res.Item);
+    const res = await dynamoDb.delete(params).promise();
+    return successResponse({});
   } catch (error) {
     return errorResponse(
       error.statusCode || 501,

@@ -1,3 +1,5 @@
+org: vadim312
+app: serverless-rest-api-with-dynamodb
 service: serverless-rest-api-with-dynamodb
 
 frameworkVersion: ">=2.24.0"
@@ -12,20 +14,24 @@ custom:
     stages:
       - dev
     start:
-      port: 8000
+      port: 19000
       inMemory: true
       migrate: true
     # Comment if you don't have a DynamoDB running locally
     #  noStart: true
     migration:
       dir: offline/migrations
+  serverless-offline:
+        httpPort: 4600
+        websocketPort: 4601
+        lambdaPort: 4602
 
 provider:
   name: aws
   runtime: nodejs12.x
   stage: 'dev'
   environment:
-    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}-tutorials
   iam:
     role:
       statements:
@@ -70,6 +76,14 @@ functions:
       - http:
           path: todos/{id}
           method: put
+          cors: true
+
+  delete:
+    handler: todos/remove.remove
+    events:
+      - http:
+          path: todos/{id}
+          method: delete
           cors: true
 
 resources:

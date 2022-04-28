@@ -1,16 +1,23 @@
-import { Handler, APIGatewayEvent, Context } from 'aws-lambda'
-import { dynamoDb } from '../util/dynamoHelper'
-import { errorResponse, successResponse } from '../util/responseHelper';
+import { Handler, APIGatewayEvent, Context } from "aws-lambda";
+import { dynamoDb } from "../util/dynamoHelper";
+import { errorResponse, successResponse } from "../util/responseHelper";
 
-export const update: Handler = async (event: APIGatewayEvent, context: Context) => {
+export const update: Handler = async (
+  event: APIGatewayEvent,
+  context: Context
+) => {
   const timestamp = new Date().getTime();
-  if (!event.body) return errorResponse(400, `Body is required`)
+  if (!event.body) return errorResponse(400, `Body is required`);
   const data = JSON.parse(event.body);
 
   // validation
-  if (typeof data.text !== 'string' || typeof data.checked !== 'boolean') {
-    console.error('Validation Failed');
-    return errorResponse(400, `Couldn't update the todo item`)
+  if (
+    typeof data.title !== "string" ||
+    typeof data.description !== "string" ||
+    typeof data.published !== "boolean"
+  ) {
+    console.error("Validation Failed");
+    return errorResponse(400, `Couldn't update the todo item`);
   }
 
   const params = {
@@ -19,22 +26,27 @@ export const update: Handler = async (event: APIGatewayEvent, context: Context) 
       id: event.pathParameters!.id,
     },
     ExpressionAttributeNames: {
-      '#todo_text': 'text',
+      "#title": "title",
     },
     ExpressionAttributeValues: {
-      ':text': data.text,
-      ':checked': data.checked,
-      ':updatedAt': timestamp,
+      ":title": data.title,
+      ":description": data.description,
+      ":published": data.published,
+      ":updatedAt": timestamp,
     },
-    UpdateExpression: 'SET #todo_text = :text, checked = :checked, updatedAt = :updatedAt',
-    ReturnValues: 'ALL_NEW',
+    UpdateExpression:
+      "SET #title = :title, description = :description, published = :published, updatedAt = :updatedAt",
+    ReturnValues: "ALL_NEW",
   };
 
   // update the todo in the database
   try {
-    const res = await dynamoDb.update(params).promise()
-    return successResponse(res.Attributes)
+    const res = await dynamoDb.update(params).promise();
+    return successResponse(res.Attributes);
   } catch (error) {
-    return errorResponse(error.statusCode || 501, `Couldn't fetch the todo item`)
+    return errorResponse(
+      error.statusCode || 501,
+      `Couldn't fetch the todo item. Error: ${error.toString()}`
+    );
   }
 };
